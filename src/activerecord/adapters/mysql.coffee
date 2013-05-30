@@ -5,7 +5,7 @@ module.exports = class MySQLAdapter
     primaryIndex: 'id'
 
   constructor: (@config) ->
-    @db = mysql.createClient @config
+    @db = mysql.createConnection @config
 
   read: (finder, table, params, opts, cb) ->
     options = @getOptions(opts)    
@@ -14,10 +14,14 @@ module.exports = class MySQLAdapter
       sqlClause = finder
     else if Array.isArray finder
       sqlClause = "SELECT * FROM `#{table}` WHERE `#{options.primaryIndex}` IN (#{finder.join(',')})"
+    else if typeof finder is "object"
+      whereClause = Object.keys(finder).map((k) -> "`#{k}`='#{finder[k]}'").join(" AND ")
+      sqlClause = "SELECT * FROM `#{table}` WHERE #{whereClause}"
     else
       sqlClause = "SELECT * FROM `#{table}` WHERE `#{options.primaryIndex}` = ? LIMIT 1"
       params = [finder]
 
+    console.log sqlClause
     @db.query sqlClause, params, (err, rows, fields) ->
       if err
         cb(err, [])

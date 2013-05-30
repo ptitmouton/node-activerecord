@@ -131,6 +131,9 @@ user.save()
 # Find by primary ID
 User.find 1, (err, user) -> console.log user.toJSON()
 
+# Find by field
+User.find { email: "mail@test.com" }, (err, user) -> console.log user.toJSON()
+
 # Find multiple by primary ID
 User.findAll [1, 2], (err, users) ->
   console.log user.toJSON() for user in users
